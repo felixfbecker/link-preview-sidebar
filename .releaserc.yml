@@ -8,7 +8,7 @@ prepare:
   # Create Chrome ZIP
   - path: semantic-release-chrome
     distFolder: &distFolder dist
-    asset: &chromeZipPath link-preview-sidebar.zip
+    asset: &chromeZipPath link-preview-sidebar-chrome.zip
   # Create Firefox xpi and zip sources
   - path: semantic-release-firefox
     distFolder: *distFolder
