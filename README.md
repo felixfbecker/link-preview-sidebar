@@ -13,8 +13,10 @@ Browser extension to open links in a sidebar instead of a new tab.
 
 ## Usage
 
+There are two ways to open a link in the sidebar:
+
 - Right click on a link and select "Open in sidebar"
-- Hold the <kbd>Alt</kbd> (<kbd>⌥</kbd> on macOS) key while clicking a link
+- Hold the <kbd>Alt</kbd> key while clicking a link (<kbd>⌥</kbd> on macOS)
 
 ---
 
