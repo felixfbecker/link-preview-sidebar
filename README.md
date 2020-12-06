@@ -1,4 +1,4 @@
-# SVG Screenshots Browser Extension
+<h1> <img src="images/icon.png" alt="Logo" height="45px" align="left"> Link Preview Sidebar Browser Extension</h1>
 
 <!-- [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/nfakpcpmhhilkdpphcjgnokknpbpdllg?logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore/detail/link-preview-sidebar/nfakpcpmhhilkdpphcjgnokknpbpdllg) -->
 <!-- [![Firefox Add-on](https://img.shields.io/amo/v/link-preview-sidebar?logo=firefox&logoColor=white&label=firefox+add-on)](https://addons.mozilla.org/en-US/firefox/addon/link-preview-sidebar/) -->
