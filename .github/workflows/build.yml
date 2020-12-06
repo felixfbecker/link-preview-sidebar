@@ -46,6 +46,6 @@ jobs:
           # GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           # GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
           # Firefox addons store
-          # FIREFOX_EMAIL: ${{ secrets.FIREFOX_EMAIL }}
-          # FIREFOX_PASSWORD: ${{ secrets.FIREFOX_PASSWORD }}
+          FIREFOX_EMAIL: ${{ secrets.FIREFOX_EMAIL }}
+          FIREFOX_PASSWORD: ${{ secrets.FIREFOX_PASSWORD }}
         run: npm run semantic-release
