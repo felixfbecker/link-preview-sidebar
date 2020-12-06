@@ -2,7 +2,7 @@ branches:
   - release
 verifyConditions:
   # - 'semantic-release-chrome'
-  # - 'semantic-release-firefox'
+  - 'semantic-release-firefox'
   - '@semantic-release/github'
 prepare:
   # Create Chrome ZIP
