@@ -28,14 +28,14 @@ jobs:
         with:
           name: link-preview-sidebar-chrome
           path: link-preview-sidebar-chrome.zip
-      - run: zip -r svg-screenshots-firefox.xpi dist
+      - run: zip -r link-preview-sidebar-firefox.xpi dist
         if: always()
       - name: Upload Firefox artifact
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: svg-screenshots-firefox
-          path: svg-screenshots-firefox.xpi
+          name: link-preview-sidebar-firefox
+          path: link-preview-sidebar-firefox.xpi
       # Release to Chrome and Firefox store on release branch
       - name: release
         if: github.event_name == 'push' && github.ref == 'refs/heads/release'
