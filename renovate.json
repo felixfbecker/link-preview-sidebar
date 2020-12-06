@@ -1,0 +1,52 @@
+{
+	"extends": ["config:base"],
+	"timezone": "Europe/Berlin",
+	"schedule": ["on the 1st through 7th day of the month"],
+	"rangeStrategy": "bump",
+	"semanticCommits": true,
+	"prCreation": "not-pending",
+	"masterIssue": true,
+	"prHourlyLimit": 0,
+	"node": {
+		"supportPolicy": ["all"],
+		"major": {
+			"enabled": true
+		}
+	},
+	"regexManagers": [
+		{
+			"fileMatch": ["^.github/workflows/.+\\.ya?ml$"],
+			"matchStrings": ["node-version: ['\"]?(?<currentValue>[^'\"]*)['\"]?"],
+			"depNameTemplate": "node",
+			"lookupNameTemplate": "nodejs/node",
+			"datasourceTemplate": "github-tags",
+			"versioningTemplate": "node"
+		}
+	],
+	"packageRules": [
+		{
+			"packagePatterns": ["^@types/"],
+			"automerge": true
+		},
+		{
+			"packageNames": ["dom-to-svg"],
+			"updateTypes": ["minor"],
+			"prCreation": "immediate",
+			"schedule": [],
+			"semanticCommitType": "feat"
+		},
+		{
+			"packageNames": ["dom-to-svg"],
+			"prCreation": "immediate",
+			"schedule": []
+		},
+		{
+			"packageNames": ["node"],
+			"extractVersion": "^v(?<version>.*)$",
+			"commitMessageTopic": "Node.js",
+			"major": {
+				"enabled": true
+			}
+		}
+	]
+}

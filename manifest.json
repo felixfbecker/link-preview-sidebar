@@ -1,0 +1,25 @@
+{
+	"manifest_version": 2,
+	"name": "Link Preview Sidebar",
+	"description": "Preview links in a sidebar instead of a new tab.",
+	"version": "0.0.0",
+	"permissions": ["contextMenus", "webRequest", "webRequestBlocking", "<all_urls>"],
+	"icons": {
+		"128": "/images/icon.png"
+	},
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["src/content.tsx"]
+		}
+	],
+	"web_accessible_resources": ["src/content.tsx", "src/content.css", "src/embedder.html"],
+	"background": {
+		"scripts": ["src/background.ts"]
+	},
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "link-preview-sidebar@felixfbecker"
+		}
+	}
+}

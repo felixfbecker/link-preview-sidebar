@@ -1,0 +1,10 @@
+{
+	"extends": "@sourcegraph/eslint-config",
+	"parserOptions": {
+		"project": "tsconfig.json"
+	},
+	"rules": {
+		"react/react-in-jsx-scope": "off",
+		"react/jsx-no-target-blank": "off"
+	}
+}

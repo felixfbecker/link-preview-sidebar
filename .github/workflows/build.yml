@@ -1,0 +1,51 @@
+name: build
+
+on: [push, pull_request]
+
+env:
+  FORCE_COLOR: 3
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '15.2.0'
+      - run: npm ci
+      - run: npm run prettier
+      - run: npm run typecheck
+      - run: npm run eslint
+      - run: npm run build
+      # Upload a build for this branch to download and test
+      - run: zip -r link-preview-sidebar-chrome.zip dist
+        if: always()
+      - name: Upload Chrome artifact
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: link-preview-sidebar-chrome
+          path: link-preview-sidebar-chrome.zip
+      - run: zip -r svg-screenshots-firefox.xpi dist
+        if: always()
+      - name: Upload Firefox artifact
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: svg-screenshots-firefox
+          path: svg-screenshots-firefox.xpi
+      # Release to Chrome and Firefox store on release branch
+      - name: release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Google web store
+          # GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          # GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          # GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          # Firefox addons store
+          # FIREFOX_EMAIL: ${{ secrets.FIREFOX_EMAIL }}
+          # FIREFOX_PASSWORD: ${{ secrets.FIREFOX_PASSWORD }}
+        run: npm run semantic-release
