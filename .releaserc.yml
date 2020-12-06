@@ -1,8 +1,8 @@
 branches:
   - release
 verifyConditions:
-  - 'semantic-release-chrome'
-  - 'semantic-release-firefox'
+  # - 'semantic-release-chrome'
+  # - 'semantic-release-firefox'
   - '@semantic-release/github'
 prepare:
   # Create Chrome ZIP
@@ -12,7 +12,7 @@ prepare:
   # Create Firefox xpi and zip sources
   - path: semantic-release-firefox
     distFolder: *distFolder
-    xpiPath: &firefoxXpiPath svg-screenshots-firefox.xpi
+    xpiPath: &firefoxXpiPath link-preview-sidebar-firefox.xpi
     sourcesArchivePath: &sourcesZipPath sources.zip
     sourcesGlobOptions:
       dot: true # Files like .assetWrapper.js are needed to build
@@ -40,30 +40,22 @@ publish:
       - path: *chromeZipPath
       - path: *firefoxXpiPath
   # Publish the the Chrome web store
-  - path: semantic-release-chrome
-    asset: *chromeZipPath
-    extensionId: nfakpcpmhhilkdpphcjgnokknpbpdllg
+  # - path: semantic-release-chrome
+  #   asset: *chromeZipPath
+  #   extensionId: nfakpcpmhhilkdpphcjgnokknpbpdllg
   # Publish to Mozilla Add-on store
-  - path: semantic-release-firefox
-    xpiPath: *firefoxXpiPath
-    distFolder: *distFolder
-    addOnSlug: svg-screenshots
-    notesToReviewer: |
-      This extension is open source at https://github.com/felixfbecker/svg-screenshots
+  # - path: semantic-release-firefox
+  #   xpiPath: *firefoxXpiPath
+  #   distFolder: *distFolder
+  #   addOnSlug: link-preview-sidebar
+  #   notesToReviewer: |
+  #     This extension is open source at https://github.com/felixfbecker/link-preview-sidebar
 
-      Needed to build:
-      NodeJS ^15.2.0
-      NPM ^7.0.8
+  #     Needed to build:
+  #     NodeJS ^15.2.0
+  #     NPM ^7.0.8
 
-      Install dependencies with `npm install`.
-      To build the extension into the dist/ folder run: npm run build
-      To then build an extension ZIP for Firefox, run afterwards: npm run firefox:build
-      The extension ZIP will be placed in `web-ext-artifacts/`.
-
-      The extension contributes an action button that opens a popup. From there, you can select further actions to take a screenshot of the current page (Example: www.google.com).
-
-      Permissions:
-      - The extension needs the all_urls permission because it needs to fetch images and fonts from webpages in the background page to inline them as Base64 into the SVG.
-      - It uses `storage` to persist user settings.
-
-      The warning about usage of the `Function` constructor is a popular polyfill for Function.prototype.bind in the dependency chain.
+  #     Install dependencies with `npm install`.
+  #     To build the extension into the dist/ folder run: npm run build
+  #     To then build an extension ZIP for Firefox, run afterwards: npm run firefox:build
+  #     The extension ZIP will be placed in `web-ext-artifacts/`.
