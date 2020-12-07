@@ -2,7 +2,7 @@ body {
 	margin: 0;
 }
 
-#iframe {
+#preview-iframe {
 	height: 100vh;
 	width: 100vw;
 	border: none;
