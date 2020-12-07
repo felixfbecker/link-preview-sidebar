@@ -13,6 +13,10 @@ Browser extension to open links in a sidebar instead of a new tab.
 
 ![Screenshot](images/screenshot.png)
 
+## Installation
+
+The extension is not yet published to the stores, but you can download [the latest release from GitHub](https://github.com/felixfbecker/link-preview-sidebar/releases/latest) and sideload it.
+
 ## Usage
 
 There are two ways to open a link in the sidebar:
