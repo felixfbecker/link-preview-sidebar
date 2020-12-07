@@ -2,13 +2,15 @@ import './polyfill'
 
 import { h, Fragment, SVGProps } from 'jsx-dom'
 import { logErrors } from './util'
-import { AllowIframeMessage, Message, PreviewMessage } from './messages'
+import { AllowIframeMessage, DisallowIframeMessage, Message, PreviewMessage } from './messages'
 
 browser.runtime.onMessage.addListener(
 	logErrors(async (message: Message) => {
-		if (message.method === 'preview') {
-			const linkUrl = new URL(message.linkUrl)
-			await showSidebar(linkUrl)
+		switch (message.method) {
+			case 'preview': {
+				const linkUrl = new URL(message.linkUrl)
+				await showSidebar(linkUrl)
+			}
 		}
 	})
 )
@@ -34,15 +36,24 @@ window.addEventListener(
 )
 
 async function showSidebar(linkUrl: URL): Promise<void> {
-	let sidebar = document.querySelector('#link-preview-sidebar')
+	let existingSidebar = document.querySelector('#link-preview-sidebar')
 	const embedderUrl = new URL(browser.extension.getURL('/src/embedder.html'))
 
-	if (!sidebar) {
-		const onCloseClick = (): void => {
-			sidebar!.remove()
-		}
+	if (!existingSidebar) {
+		const sidebar = <aside id="link-preview-sidebar" aria-label="Link preview" />
+		existingSidebar = sidebar
 
-		sidebar = <aside id="link-preview-sidebar" aria-label="Link preview" />
+		const onCloseClick = logErrors(
+			async (): Promise<void> => {
+				sidebar.remove()
+				const message: DisallowIframeMessage = {
+					method: 'disallowIframe',
+					linkUrl: linkUrl.href,
+				}
+				await browser.runtime.sendMessage(message)
+			}
+		)
+
 		sidebar.attachShadow({ mode: 'open', delegatesFocus: true }).append(
 			<>
 				<link href={browser.extension.getURL('/src/content.css')} rel="stylesheet" />
@@ -80,11 +91,11 @@ async function showSidebar(linkUrl: URL): Promise<void> {
 			embedderIframe.src = embedderUrl.href
 		})
 	}
-	const link = sidebar.shadowRoot!.querySelector<HTMLAnchorElement>('#link-preview-link')!
+	const link = existingSidebar.shadowRoot!.querySelector<HTMLAnchorElement>('#link-preview-link')!
 	link.href = linkUrl.href
 	link.textContent = linkUrl.href
 
-	const embedderIframe = sidebar.shadowRoot!.querySelector<HTMLIFrameElement>('#link-preview-sidebar-iframe')!
+	const embedderIframe = existingSidebar.shadowRoot!.querySelector<HTMLIFrameElement>('#link-preview-sidebar-iframe')!
 	const embedderMessage: PreviewMessage = {
 		method: 'preview',
 		linkUrl: linkUrl.href,

@@ -34,21 +34,46 @@ browser.contextMenus.onClicked.addListener(
 	})
 )
 
+/**
+ * Map from tabId:URL to function that removes all webRequest listeners again.
+ * Keeps track of allowed iframes to not double-register listeners.
+ */
+const allowedIframes = new Map<string, () => void>()
+const iframeAllowEntryKey = (tabId: number, sourceUrl: Readonly<URL>): string =>
+	`${tabId}:${urlWithoutHash(sourceUrl).href}`
+
 // Register message listener to support alt-clicking links
 // eslint-disable-next-line @typescript-eslint/require-await
 browser.runtime.onMessage.addListener(async (message: Message, sender) => {
-	if (message.method === 'allowIframe') {
-		assert(sender.tab, 'Expected sender to have tab')
-		const linkUrl = new URL(message.linkUrl)
-		allowIframe(sender.tab, linkUrl)
-		return null
+	assert(sender.tab, 'Expected sender to have tab')
+	const linkUrl = new URL(message.linkUrl)
+	switch (message.method) {
+		case 'allowIframe': {
+			allowIframe(sender.tab, linkUrl)
+			return
+		}
+		case 'disallowIframe': {
+			if (!sender.tab.id) {
+				return
+			}
+			// Call cleanup function that unregisters all webRequest listeners
+			allowedIframes.get(iframeAllowEntryKey(sender.tab.id, linkUrl))?.()
+			return
+		}
+		default: {
+			throw new Error('Unknown message ' + message.method)
+		}
 	}
-	throw new Error('Unknown message ' + message.method)
 })
 
-// Keep track of allowed iframes to not double-register listeners
-const allowedIframes = new Set<string>()
-const iframeAllowEntryKey = (tabId: number, sourceUrl: Readonly<URL>): string => `${tabId}:${sourceUrl.href}`
+/**
+ * Removes the `#` fragment from a URL.
+ */
+function urlWithoutHash(url: Readonly<URL>): Readonly<URL> {
+	const noHash = new URL(url.href)
+	noHash.hash = ''
+	return noHash
+}
 
 /**
  * Registers `webRequest` interceptors  to make sure the specific given URL is allowed to be displayed in an iframe
@@ -58,9 +83,8 @@ const iframeAllowEntryKey = (tabId: number, sourceUrl: Readonly<URL>): string =>
  * @param sourceUrl The `src` URL of the iframe to allow.
  */
 function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
-	const filterUrl = new URL(sourceUrl.href)
 	// The hash is dropped for webRequests and will cause the filter to never match.
-	filterUrl.hash = ''
+	const filterUrl = urlWithoutHash(sourceUrl)
 
 	console.log('Allowing iframe', filterUrl.href, 'in tab', tab)
 	assert(tab.id, 'Expected tab to have ID')
@@ -77,7 +101,6 @@ function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
 		console.log('iframe already allowed', tab.id, filterUrl.href)
 		return
 	}
-	allowedIframes.add(key)
 
 	const onBeforeSendHeadersListener = (
 		details: browser.webRequest._OnBeforeSendHeadersDetails
@@ -150,15 +173,21 @@ function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
 		['blocking', 'responseHeaders', 'extraHeaders'].filter(isOnHeadersReceivedOption)
 	)
 
+	/** Removes listeners again */
+	function disallow(): void {
+		console.log('Removing webRequest listeners')
+		browser.webRequest.onHeadersReceived.removeListener(onHeadersReceivedListener)
+		browser.webRequest.onBeforeSendHeaders.removeListener(onBeforeSendHeadersListener)
+		browser.tabs.onRemoved.removeListener(tabClosedListener)
+		allowedIframes.delete(key)
+	}
+	allowedIframes.set(key, disallow)
+
 	// Remove listeners again when tab is closed
 	const tabId = tab.id
-	const tabClosedListener = (removedTabId: number): void => {
+	function tabClosedListener(removedTabId: number): void {
 		if (removedTabId === tabId) {
-			console.log('Tab closed, removing webRequest listeners')
-			browser.webRequest.onHeadersReceived.removeListener(onHeadersReceivedListener)
-			browser.webRequest.onBeforeSendHeaders.removeListener(onBeforeSendHeadersListener)
-			browser.tabs.onRemoved.removeListener(tabClosedListener)
-			allowedIframes.delete(key)
+			disallow()
 		}
 	}
 	browser.tabs.onRemoved.addListener(tabClosedListener)
