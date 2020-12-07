@@ -3,7 +3,7 @@
 <!-- [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/nfakpcpmhhilkdpphcjgnokknpbpdllg?logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore/detail/link-preview-sidebar/nfakpcpmhhilkdpphcjgnokknpbpdllg) -->
 <!-- [![Firefox Add-on](https://img.shields.io/amo/v/link-preview-sidebar?logo=firefox&logoColor=white&label=firefox+add-on)](https://addons.mozilla.org/en-US/firefox/addon/link-preview-sidebar/) -->
 
-![latest release](https://img.shields.io/github/v/release/felixfbecker/link-preview-sidebar)
+[![latest release](https://img.shields.io/github/v/release/felixfbecker/link-preview-sidebar)](https://github.com/felixfbecker/link-preview-sidebar/releases/latest)
 [![main build status](https://img.shields.io/github/workflow/status/felixfbecker/link-preview-sidebar/build/main?label=main&logo=github)](https://github.com/felixfbecker/link-preview-sidebar/actions?query=branch%3Amain)
 [![release build status](https://img.shields.io/github/workflow/status/felixfbecker/link-preview-sidebar/build/release?label=release&logo=github)](https://github.com/felixfbecker/link-preview-sidebar/actions?query=branch%3Arelease)
 ![license: MIT](https://img.shields.io/github/license/felixfbecker/link-preview-sidebar)
