@@ -3,7 +3,7 @@
 	"name": "Link Preview Sidebar",
 	"description": "Preview links in a sidebar instead of a new tab.",
 	"version": "0.0.0",
-	"permissions": ["contextMenus", "webRequest", "webRequestBlocking", "<all_urls>"],
+	"permissions": ["contextMenus", "webRequest", "webRequestBlocking", "tabs", "<all_urls>"],
 	"icons": {
 		"128": "/images/icon.png"
 	},

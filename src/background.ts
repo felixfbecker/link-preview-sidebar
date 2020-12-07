@@ -1,6 +1,6 @@
 import './polyfill'
 
-import { assert, logErrors } from './util'
+import { assert, isOnBeforeSendHeadersOption, isOnHeadersReceivedOption, logErrors } from './util'
 import { Message, PreviewMessage } from './messages'
 
 // Register context menu entry to open links in sidebar
@@ -80,10 +80,12 @@ function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
 	}
 	// To allow the link URL to be displayed in the iframe, we need to make sure the Sec-Fetch-Dest: iframe
 	// header does not get sent so the server does not reject the request.
-	browser.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeadersListener, requestFilter, [
-		'blocking',
-		'requestHeaders',
-	])
+	browser.webRequest.onBeforeSendHeaders.addListener(
+		onBeforeSendHeadersListener,
+		requestFilter,
+		// Firefox does not support 'extraHeaders', Chrome needs it.
+		['blocking', 'requestHeaders', 'extraHeaders'].filter(isOnBeforeSendHeadersOption)
+	)
 
 	const onHeadersReceivedListener = (
 		details: browser.webRequest._OnHeadersReceivedDetails
@@ -123,11 +125,12 @@ function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
 		console.log('filtered response', response)
 		return response
 	}
-	browser.webRequest.onHeadersReceived.addListener(onHeadersReceivedListener, requestFilter, [
-		'blocking',
-		'responseHeaders',
-		'extraHeaders' as browser.webRequest.OnHeadersReceivedOptions,
-	])
+	browser.webRequest.onHeadersReceived.addListener(
+		onHeadersReceivedListener,
+		requestFilter,
+		// Firefox does not support 'extraHeaders', Chrome needs it.
+		['blocking', 'responseHeaders', 'extraHeaders'].filter(isOnHeadersReceivedOption)
+	)
 
 	// Remove listeners again when tab is closed
 	const tabId = tab.id
