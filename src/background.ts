@@ -58,19 +58,23 @@ const iframeAllowEntryKey = (tabId: number, sourceUrl: Readonly<URL>): string =>
  * @param sourceUrl The `src` URL of the iframe to allow.
  */
 function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
-	console.log('Allowing iframe', sourceUrl.href, 'in tab', tab)
+	const filterUrl = new URL(sourceUrl.href)
+	// The hash is dropped for webRequests and will cause the filter to never match.
+	filterUrl.hash = ''
+
+	console.log('Allowing iframe', filterUrl.href, 'in tab', tab)
 	assert(tab.id, 'Expected tab to have ID')
 
 	// Narrowly scope to only the requested URL in frames in the
 	// requested tab to not losen security more than necessary.
 	const requestFilter: browser.webRequest.RequestFilter = {
 		tabId: tab.id,
-		urls: [sourceUrl.href],
+		urls: [filterUrl.href],
 		types: ['sub_frame'],
 	}
-	const key = iframeAllowEntryKey(tab.id, sourceUrl)
+	const key = iframeAllowEntryKey(tab.id, filterUrl)
 	if (allowedIframes.has(key)) {
-		console.log('iframe already allowed', tab.id, sourceUrl.href)
+		console.log('iframe already allowed', tab.id, filterUrl.href)
 		return
 	}
 	allowedIframes.add(key)
