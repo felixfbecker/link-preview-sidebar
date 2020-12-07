@@ -11,6 +11,8 @@
 
 Browser extension to open links in a sidebar instead of a new tab.
 
+![Screenshot](images/screenshot.png)
+
 ## Usage
 
 There are two ways to open a link in the sidebar:
