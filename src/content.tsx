@@ -4,12 +4,14 @@ import { h, Fragment, SVGProps } from 'jsx-dom'
 import { logErrors } from './util'
 import { AllowIframeMessage, Message, PreviewMessage } from './messages'
 
-browser.runtime.onMessage.addListener((message: Message) => {
-	if (message.method === 'preview') {
-		const linkUrl = new URL(message.linkUrl)
-		showSidebar(linkUrl)
-	}
-})
+browser.runtime.onMessage.addListener(
+	logErrors(async (message: Message) => {
+		if (message.method === 'preview') {
+			const linkUrl = new URL(message.linkUrl)
+			await showSidebar(linkUrl)
+		}
+	})
+)
 
 // Open links in preview side bar when Alt key is held
 window.addEventListener(
@@ -22,15 +24,19 @@ window.addEventListener(
 				method: 'allowIframe',
 				linkUrl: linkUrl.href,
 			}
+			console.log('Asking background page to allow URL in iframe', linkUrl.href)
 			await browser.runtime.sendMessage(message)
-			showSidebar(linkUrl)
+			console.log('Allowed iframe, opening sidebar')
+			await showSidebar(linkUrl)
 		}
 	}),
 	{ capture: true }
 )
 
-function showSidebar(linkUrl: URL): void {
+async function showSidebar(linkUrl: URL): Promise<void> {
 	let sidebar = document.querySelector('#link-preview-sidebar')
+	const embedderUrl = new URL(browser.extension.getURL('/src/embedder.html'))
+
 	if (!sidebar) {
 		const onCloseClick = (): void => {
 			sidebar!.remove()
@@ -60,33 +66,30 @@ function showSidebar(linkUrl: URL): void {
 					</button>
 				</div>
 				<iframe id="link-preview-sidebar-iframe" />
-				{/* <iframe id="link-preview-sidebar-iframe" referrerPolicy="no-referrer" /> */}
 			</>
 		)
 
 		document.body.append(sidebar)
+
+		// Embed the page to be previewed in an iframe hosted by the extension. Using the context of the browser
+		// extension ensures that cookies (including SameSite=Lax) are sent for the URL the same as for a full page
+		// navigation, which would otherwise not be the case and would cause the preview to be broken.
+		const embedderIframe = sidebar.shadowRoot!.querySelector<HTMLIFrameElement>('#link-preview-sidebar-iframe')!
+		await new Promise<Event>(resolve => {
+			embedderIframe.addEventListener('load', resolve, { once: true })
+			embedderIframe.src = embedderUrl.href
+		})
 	}
 	const link = sidebar.shadowRoot!.querySelector<HTMLAnchorElement>('#link-preview-link')!
 	link.href = linkUrl.href
 	link.textContent = linkUrl.href
 
-	// Embed the page to be previewed in an iframe hosted by the extension. Using the context of the browser
-	// extension ensures that cookies (including SameSite=Lax) are sent for the URL the same as for a full page
-	// navigation, which would otherwise not be the case and would cause the preview to be broken.
 	const embedderIframe = sidebar.shadowRoot!.querySelector<HTMLIFrameElement>('#link-preview-sidebar-iframe')!
-	const embedderUrl = new URL(browser.extension.getURL('/src/embedder.html'))
-	embedderIframe.addEventListener(
-		'load',
-		() => {
-			const embedderMessage: PreviewMessage = {
-				method: 'preview',
-				linkUrl: linkUrl.href,
-			}
-			embedderIframe.contentWindow!.postMessage(embedderMessage, embedderUrl.origin)
-		},
-		{ once: true }
-	)
-	embedderIframe.src = embedderUrl.href
+	const embedderMessage: PreviewMessage = {
+		method: 'preview',
+		linkUrl: linkUrl.href,
+	}
+	embedderIframe.contentWindow!.postMessage(embedderMessage, embedderUrl.origin)
 	embedderIframe.focus()
 }
 

@@ -35,13 +35,20 @@ browser.contextMenus.onClicked.addListener(
 )
 
 // Register message listener to support alt-clicking links
-browser.runtime.onMessage.addListener((message: Message, sender) => {
+// eslint-disable-next-line @typescript-eslint/require-await
+browser.runtime.onMessage.addListener(async (message: Message, sender) => {
 	if (message.method === 'allowIframe') {
 		assert(sender.tab, 'Expected sender to have tab')
 		const linkUrl = new URL(message.linkUrl)
 		allowIframe(sender.tab, linkUrl)
+		return null
 	}
+	throw new Error('Unknown message ' + message.method)
 })
+
+// Keep track of allowed iframes to not double-register listeners
+const allowedIframes = new Set<string>()
+const iframeAllowEntryKey = (tabId: number, sourceUrl: Readonly<URL>): string => `${tabId}:${sourceUrl.href}`
 
 /**
  * Registers `webRequest` interceptors  to make sure the specific given URL is allowed to be displayed in an iframe
@@ -52,6 +59,7 @@ browser.runtime.onMessage.addListener((message: Message, sender) => {
  */
 function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
 	console.log('Allowing iframe', sourceUrl.href, 'in tab', tab)
+	assert(tab.id, 'Expected tab to have ID')
 
 	// Narrowly scope to only the requested URL in frames in the
 	// requested tab to not losen security more than necessary.
@@ -60,6 +68,12 @@ function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
 		urls: [sourceUrl.href],
 		types: ['sub_frame'],
 	}
+	const key = iframeAllowEntryKey(tab.id, sourceUrl)
+	if (allowedIframes.has(key)) {
+		console.log('iframe already allowed', tab.id, sourceUrl.href)
+		return
+	}
+	allowedIframes.add(key)
 
 	const onBeforeSendHeadersListener = (
 		details: browser.webRequest._OnBeforeSendHeadersDetails
@@ -140,6 +154,7 @@ function allowIframe(tab: browser.tabs.Tab, sourceUrl: Readonly<URL>): void {
 			browser.webRequest.onHeadersReceived.removeListener(onHeadersReceivedListener)
 			browser.webRequest.onBeforeSendHeaders.removeListener(onBeforeSendHeadersListener)
 			browser.tabs.onRemoved.removeListener(tabClosedListener)
+			allowedIframes.delete(key)
 		}
 	}
 	browser.tabs.onRemoved.addListener(tabClosedListener)
