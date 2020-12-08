@@ -42,20 +42,26 @@ publish:
   # Publish the the Chrome web store
   # - path: semantic-release-chrome
   #   asset: *chromeZipPath
-  #   extensionId: nfakpcpmhhilkdpphcjgnokknpbpdllg
+  #   extensionId: cdnefgebicfnnnjmbnlldhfjmcblfhob
   # Publish to Mozilla Add-on store
-  # - path: semantic-release-firefox
-  #   xpiPath: *firefoxXpiPath
-  #   distFolder: *distFolder
-  #   addOnSlug: link-preview-sidebar
-  #   notesToReviewer: |
-  #     This extension is open source at https://github.com/felixfbecker/link-preview-sidebar
+  - path: semantic-release-firefox
+    xpiPath: *firefoxXpiPath
+    distFolder: *distFolder
+    addOnSlug: link-preview-sidebar
+    notesToReviewer: |
+      This extension is open source at https://github.com/felixfbecker/link-preview-sidebar
 
-  #     Needed to build:
-  #     NodeJS ^15.2.0
-  #     NPM ^7.0.8
+      Needed to build:
+      NodeJS ^15.2.0
+      NPM ^7.0.8
 
-  #     Install dependencies with `npm install`.
-  #     To build the extension into the dist/ folder run: npm run build
-  #     To then build an extension ZIP for Firefox, run afterwards: npm run firefox:build
-  #     The extension ZIP will be placed in `web-ext-artifacts/`.
+      Install dependencies with `npm install`.
+      To build the extension into the dist/ folder run: npm run build
+      To then build an extension ZIP for Firefox, run afterwards: npm run firefox:build
+      The extension ZIP will be placed in `web-ext-artifacts/`.
+
+      What each permission is needed for:
+      - `contextMenus`: The extension adds a "Open in sidebar" context menu item to links.
+      - `webRequest`, `webRequestBlocking`: The extension needs to intercept the request of the previewed webpage being loaded in the iframe in the sidebar to remove any `X-Frame-Option: Deny` header and add the URL of the tab to the `frame-ancestors` CSP directive if a CSP header with a `frame-ancestors` directive is present. Otherwise it would not be possible to load the website in the preview iframe.
+      - `tabs`: The extension needs to read the tab.url property of the Tab object of the tab the user asked to open the sidebar in to scope the webRequest handler as narrowly as possible to only the tab the user opened the sidebar in.
+      - `<all_urls>`: The extension allows alt-clicking links to open the sidebar, for which it needs to run a content script on every page that registers a click handler.
