@@ -43,7 +43,7 @@
 		"@sourcegraph/eslint-config": "^0.20.18",
 		"@sourcegraph/prettierrc": "^3.0.3",
 		"@types/firefox-webext-browser": "^82.0.0",
-		"eslint": "^7.15.0",
+		"eslint": "^7.28.0",
 		"husky": "^4.3.0",
 		"parcel-bundler": "^1.12.4",
 		"parcel-plugin-web-extension": "^1.6.1",
