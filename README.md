@@ -17,7 +17,7 @@ Browser extension to open links in a sidebar instead of a new tab.
 
 Install the add-on for Firefox from the [Firefox webstore](https://addons.mozilla.org/en-US/firefox/addon/link-preview-sidebar/).
 
-The extension is not yet published to the Chrome store, but you can download [the latest release from GitHub](https://github.com/felixfbecker/link-preview-sidebar/releases/latest) and sideload it.
+Install the extension for Chrome from the [Chrome store](https://chrome.google.com/webstore/detail/link-preview-sidebar/cdnefgebicfnnnjmbnlldhfjmcblfhob). (Or you can can download [the latest release from GitHub](https://github.com/felixfbecker/link-preview-sidebar/releases/latest) and sideload it.)
 
 ## Usage
 
